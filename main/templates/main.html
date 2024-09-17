@@ -9,23 +9,23 @@
 <p>{{ kelas }}</p>
 
 ...
-{% if not shop_entries %}
+{% if not item_entries %}
 <p>Belum ada data pada arlic good shop.</p>
 {% else %}
 <table>
   <tr>
-    <th>Shop Name</th>
+    <th>Item</th>
     <th>Price</th>
     <th>Description</th>
   </tr>
 
-  {% comment %} Berikut cara memperlihatkan data shop di bawah baris ini 
+  {% comment %} Berikut cara memperlihatkan data item di bawah baris ini 
   {% endcomment %} 
-  {% for shop_entry in shop_entries %}
+  {% for item in item_entries %}
   <tr>
-    <td>{{shop_entry.name}}</td>
-    <td>{{shop_entry.price}}</td>
-    <td>{{shop_entry.description}}</td>
+    <td>{{item.name}}</td>
+    <td>{{item.price}}</td>
+    <td>{{item.description}}</td>
   </tr>
   {% endfor %}
 </table>
@@ -33,8 +33,8 @@
 
 <br />
 
-<a href="{% url 'main:create_shop_entry' %}">
-  <button>Add New Shop Entry</button>
+<a href="{% url 'main:create_item_entry' %}">
+  <button>Add New Item Entry</button>
 </a>
 
 {% endblock content %}

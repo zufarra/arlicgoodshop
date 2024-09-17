@@ -1,7 +1,7 @@
 from django.forms import ModelForm
-from main.models import Application
+from main.models import ItemEntry
 
-class ShopEntryForm(ModelForm):
+class ItemEntryForm(ModelForm):
     class Meta:
-        model = Application
+        model = ItemEntry
         fields = ["name", "price", "description"]

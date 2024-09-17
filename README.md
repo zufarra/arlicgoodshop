@@ -1,5 +1,6 @@
 Link Deployment:http://zufar-romli-arlicgoodshop.pbp.cs.ui.ac.id
 
+Tugas 2
 1. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial).
 Jawab: 
 - Membuat repositori GitHub baru bernama arlicshop dengan visibilitas public
@@ -67,3 +68,43 @@ Jawab: Framework django dijadikan permulaan pembelajaran perangkat lunak karena 
 
 5. Mengapa model pada Django disebut sebagai ORM?
 Jawab: Model pada Django disebut sebagai ORM karena objek dipetakan pada kode python ke tabel dalam database relasional. Teknik ORM merupakan teknik pemrograman yang menghubungkan elemen-elemen dalam pemrograman berbasis objek dengan elemen-elemen di dalam database relasional.
+
+Tugas 3
+
+1. Jelaskan mengapa kita memerlukan data delivery dalam pengimplementasian sebuah platform?
+Jawab: Data delivery penting dalam pengimplementasian sebuah platform karena beberapa hal. Pertama, keamanan data. Data delivery akan melibatkan keamanan yang baik dengan mengenkripsi data selama pengiriman. Hal ini penting untuk menghindari serangan siber. Kedua, kecepatan dan performa. Dalam platform yang besar, kecepatan pengiriman data sangat penting agar platform bisa beroperasi lebih cepat dan responsif. Ketiga, skalabilitas yang besar. Platform yang berkembang pesat akan merasakan bertambahnya pengguna sehingga sistem data delivery harus mampu mengimbangi permintaan yang meningkat.
+
+2. Menurutmu, mana yang lebih baik antara XML dan JSON? Mengapa JSON lebih populer dibandingkan XML?
+Jawab: JSON dianggap lebih baik dibanding JSON, sekaligus lebih populer. JSON dianggap lebih populer dibandingkan XML karena beberapa hal. Pertama, sintaks yang sederhana dan ringkas. Bagi para programmer, terutama programmer pemula, sintaks menjadi hal krusial dalam perjalanan membangun sebuah proyek. Sintaks yang sederhana dan ringkas dapat dengan mudah diproses oleh mesin, sedangkan XML memiliki tag pembuka dan penutup yang memperbesar ukuran file. Kedua, parsing lebih cepat dan mudah. JSON lebih cepat untuk di-parse di kebanyakan bahasa pemrograman sehingga mendukung JSON untuk parsing data secara efisien, sedangkan XML biasanya membutuhkan tools tambahan yang lebih kompleks dan lambat. Ketiga, JSON dirancang untuk penyajian data secara langsung sehingga sangat cocok untuk digunakan dalam menyimpan data sederhana, sedangkan XML lebih cocok mendukung elemen-elemen lain, seperti atribut, namespace, dan dokumen lainnya yang lebih terstruktur. Hal tersebut dirasa kurang efektif apabila hanya digunakan untuk pertukaran data.
+
+3. Jelaskan fungsi dari method is_valid() pada form Django dan mengapa kita membutuhkan method tersebut?
+Jawav: Fungsi dari method is_valid() pada form Django adalah untuk memastikan form berisi data yang valid sesuai dengan aturan yang telah didefinisikan, memicu validasi field, serta mengakses data bersih. Alasan kita membutuhkan method tersebut adalah untuk mempermudah pengolahan data, memastikan keamanan input, serta penanganan kesalahan yang terpusat.
+
+4. Mengapa kita membutuhkan csrf_token saat membuat form di Django? Apa yang dapat terjadi jika kita tidak menambahkan csrf_token pada form Django? Bagaimana hal tersebut dapat dimanfaatkan oleh penyerang?
+Jawab: Kita membutuhkan csrf_token saat membuat form di Django karena csrf_token merupakan salah satu mekanisme keamanan utama yang digunakan oleh Django untuk melindungi aplikasi dari serangan CSRF. Jika kita tidak menambahkan crsf_token pada form Django, akan ada penyalahgunaan hak akses serta pengguna dapat terjebak untuk mengirimkan permintaan yang tidak valid. Hal tersebut dapat dimanfaatkan oleh penyerang dengan mengirimkan permintaan melalui situs eksternal. Biasanya para pengguna tidak menyadari bahwa mereka telah menjawab permintaan yang tidak sah yang dilakukan oleh penyerang. Contohnya adalah penipuan uang yang dilakukan melalui situs web eksternal. Hal tersebut tentunya dapat merugikan pengguna. 
+
+5. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial).
+Jawab: 
+- Membuat direktori templates pada direktori utama. Lalu, buat berkas HTML baru bernama base.html.
+- Buka settings.py pada direktori arlicgoodshop. Lalu, pada variabel TEMPLATES, sesuaikan kode yang ada agar base.html dapat terdeteksi sebagai berkas template.
+- Mengubah kode berkas main.html pada subdirektori templates yang ada pada direktori main.
+- Menghapus db.sqlite3
+- Import uuid
+- tambahkan variabel id yang isinya adalah models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+- Melakukan migrasi model
+- Membuat forms.py pada direktori main
+- Isi forms.py dengan kode yang tujuannya sebagai struktur form yang dapat menerima data shop entry
+- Buka views.py dan tambahkan beberapa import
+- Buat fungsi create_item_entry dengan parameter request pada views.py
+- Masukkan 'mood_entries': mood_entries pada fungsi show_main
+- Buka urls.py pada direktori main dan impor fungsi create_item_entry
+- Tambahkan path pada url patterns untuk mengakses fungsi yang sudah diimpor sebelumnya
+- Buat berkas HTML baru dengan nama create_item_entry.html pada direktori main/templates
+- Buka main.html dan tambahkan kode yang akan menampilkan data mood dalam bentu tabel
+- Buka views.py pada direktori main dan import HttpResponse dan Serializer
+- Tambahkan fungsi show_xml, show_json, show_xml_by_id, dan show_json_by_id yang mengembalikan response dari requester.
+- Buka urls.py pada direktori main dan impor fungsi yang sudah dibuat barusan
+- Tambahkan path url ke dalam urlpatterns untuk mengakses fungsi yang sudah diimpor tadi
+- Menggunakakan postman untuk melihat data yang telah masuk
+- Melakukan push pws secara otomatis menggunakan GitHub Actions.
+
