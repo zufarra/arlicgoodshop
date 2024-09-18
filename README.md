@@ -108,3 +108,14 @@ Jawab:
 - Menggunakakan postman untuk melihat data yang telah masuk
 - Melakukan push pws secara otomatis menggunakan GitHub Actions.
 
+### Screenshot Postman 
+- JSON
+![json](https://github.com/user-attachments/assets/4aa1d2d8-9bc1-4df9-94f6-7336e9837772)
+- JSON BY ID
+![json id](https://github.com/user-attachments/assets/1377c939-9ee3-471e-8d1a-e47ec44642b1)
+- XML
+![xml](https://github.com/user-attachments/assets/2aa3bb29-ee5a-4605-aaee-090f2cdbbe34)
+- XML BY ID
+![xml id](https://github.com/user-attachments/assets/9e9627ab-a0e8-4615-8365-fe3e26913e67)
+
+
