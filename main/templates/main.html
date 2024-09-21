@@ -8,7 +8,6 @@
 <h5>Class:</h5>
 <p>{{ kelas }}</p>
 
-...
 {% if not item_entries %}
 <p>Belum ada data pada arlic good shop.</p>
 {% else %}
@@ -35,6 +34,10 @@
 
 <a href="{% url 'main:create_item_entry' %}">
   <button>Add New Item Entry</button>
+  <a href="{% url 'main:logout' %}">
+    <button>Logout</button>
+    <h5>Sesi terakhir login: {{ last_login }}</h5>
+  </a>
 </a>
 
 {% endblock content %}
