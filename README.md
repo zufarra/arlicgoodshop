@@ -119,3 +119,130 @@ Jawab:
 ![xml id](https://github.com/user-attachments/assets/9e9627ab-a0e8-4615-8365-fe3e26913e67)
 
 
+Tugas 4
+1. Apa perbedaan antara HttpResponseRedirect() dan redirect()?
+Jawab: Terdapat beberapa perbedaan antara kedua fungsi tersebut. Pertama, HttpResponseRedirect() memerlukan URL lengkap, sementara redirect() dapat menerima URL, URL lengkap, atau path relatif. Kedua, HttpResponseRedirect() diimpor dari django.http, sementara redirect() diimpor dari django.shortcuts. Ketiga, HttpResponseRedirect() adalah kelas tingkat rendah, sementara redirect() adalah fungsi tingkat tinggi yang memanggil HttpResponseRedirect(). Dari segi penggunaan, redirect() cenderung lebih mudah untuk digunakan.
+
+2. Jelaskan cara kerja penghubungan model Product dengan User!
+Jawab: Penghubungan model Product dengan User bertujuan agar para User dapat melihat ItemEntriesnya yang dibuatnya sendiri, tanpa melihat punya User lain. Pertama, kita perlu hubungkan salah satu model yang kita gunakan dengan satu user melalui suatu relationship. Relationship adalah suatu hubungan yang terasosiasikan antara dua entitas. Dalam hal ini, dua entitas tersebut adalah item entry dan user. Lalu, pada views kita buat suatu conditional agar Django tidak langsung menyimpan objek yang telah dibuat dari form langsung ke database. Hal tersebut agar kita dapat memodifikasi objek tersebut dengan menandakan objek tersebut dimiliki oleh pengguna yang sedang login. Kemudian, pada fungsi show_main pada views.py, kita dapat assign variabel item_entries dengan ItemEntry.objects.filter(user=request.user). Hal tersebut bertujuan agar objek ItemEntry dapat terasosiasikan dengan User yang sedang login. Selain itu, kita dapat menampilkan nama user yang sedang login pada tampilan dengan mengisi key, value pada dictionary context dengan 'nama' : request.user.username. Terakhir, setelah melakukan semua perubahan, lakukan migrasi model dengan command python manage.py makemigrations yang dilanjutkan dengan command python manage.py migrate. Coba jalankan proyek dan seharusnya model telah terasosiasikan dengan User.
+
+3. Apa perbedaan antara authentication dan authorization, apakah yang dilakukan saat pengguna login? Jelaskan bagaimana Django mengimplementasikan kedua konsep tersebut.
+Jawab: Authentication adalah suatu mekanisme verifikasi identitas User, sementara authorization adalah mekanisme menentukan apa yang boleh dilakukan oleh User yang telah terautentikasi. Pada saat User login, sistem akan melakukan mekanisme autentikasi terlebih dahulu untuk memverifikasi data User. Kemudian, jika autentikasi berhasil, sistem dapat menetapkan autorisasi berdasarkan identitas User tersebut. Pada authentication, Django menggunakan sistem autentikasi bawaan yang ada di django.contrib.auth. Terdapat beberapa implementasi dari autentikasi oleh django, yaitu django menyediakan model User bawaan, menyediakan login form bawaan, serta menyediakan view login, logout, dan perubahan passsword. Untuk authorization, django menggunakan sistem permission dan group untuk otorisasi. Terdapat beberapa implementasi dari otorisasi oleh django, yaitu django secara otomatis membuat permissions untuk setiap model, memungkinkan pengelompokan Users dengan permissions yang sama, dan menyediakan decorator, seperti @login_required.
+
+4. Bagaimana Django mengingat pengguna yang telah login? Jelaskan kegunaan lain dari cookies dan apakah semua cookies aman digunakan?
+Jawab: Terdapat beberapa cara agar django dapast mengingat pengguna yang telah login. Pertama, sessions. Django membuat sebuah session di server yang mana session menyimpan informasi User, termasuk men-generate session ID yang unik untuk setiap sessions. Kedua, cookies. sessions ID yang telah digenerate oleh sessions, disimpan pada cookie di browser User. Setiap User membuat request, cookie akan dikirim ke server. Ketiga, proses autentikasi yang mana server menerima cookie session id dan mengambil data session dari server. Kegunaan lain dari cookies adalah untuk menyimpan pengaturan tampilan, menganalisis perilaku User, menyimpan token autentikasi, dan lain-lain. Tidak semua cookies aman digunakan, seperti HttpOnly Flag yang mana cookies tersebut tidak dapat diakses oleh JavaScript. Cookies hanya dapat dikirim melalui koneksi Https. Sebaiknya, simpan data yang benar-benar diperlukan dalam cookies dan data sensitif sebaiknya dienkripsi.
+
+5. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial).
+Jawab:
+
+a. Mengimplementasikan fungsi registrasi, login, dan logout untuk memungkinkan pengguna untuk mengakses aplikasi sebelumnya dengan lancar.
+step by step: 
+- Aktifkan virtual environment
+- Buka views.py yang terdapat pada subdirektori main, tambahkan import berikut: 
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+- Tambahkan fungsi register (registrasi) pada views.py sebagai berikut:
+def register(request):
+    form = UserCreationForm()
+
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your account has been successfully created!')
+            return redirect('main:login')
+    context = {'form':form}
+    return render(request, 'register.html', context)
+- Buat berkas register.html pada direktori main/templates sebagai tampilan dari fungsi registrasi.
+- Buka urls.py pada subdirektori main dan impor fungsi register
+- Tambahkan path url ke dalam url patterns. Path url sebagai berikut"
+path('register/', register, name='register'),
+- Tambahkan fungsi login_user pada views.py sebagai berikut:
+def login_user(request):
+   if request.method == 'POST':
+      form = AuthenticationForm(data=request.POST)
+
+      if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('main:show_main')
+
+   else:
+      form = AuthenticationForm(request)
+   context = {'form': form}
+   return render(request, 'login.html', context)
+- Buat berkas login.html pada direktori main/templates sebagai tampilan dari fungsi login. 
+- Buka urls.py pada subdirektori main dan impor fungsi login
+- Tambahkan path url ke dalam url patterns. Path url sebagai berikut"
+path('login/', login_user, name='login'),
+- Tambahkan fungsi logout_user pada views.py sebagai berikut:
+def logout_user(request):
+    logout(request)
+    return redirect('main:login')
+- Buka berkas main.html dan tambahkan hyperlink tag untuk Add New Item Entry serta button logout.
+- Buka urls.py pada subdirektori main dan impor fungsi logout_user
+- Tambahkan path url ke dalam url patterns. Path url sebagai berikut"
+path('logout/', logout_user, name='logout'),
+
+b. Membuat dua akun pengguna dengan masing-masing tiga dummy data menggunakan model yang telah dibuat pada aplikasi sebelumnya untuk setiap akun di lokal.
+step by step:
+- Jalanlan proyek django pada local server.
+- Buat dua akun User dengan registrasi terlebih dahulu.
+- Login ke dalam kedua akun tersebut secara berurutan.
+- Tambahkan tiga dummy data menggunakan model yang terlah dibuat pada setiap akun di lokal.
+
+c. Menghubungkan model Product dengan User.
+step by step: 
+- Buka models.py pada subdirektori main dan lakukan impor model berikut:
+from django.contrib.auth.models import User
+- Pada class ItemEntry, tambahkan potongan kode berikut yang bertujuan agar satu Item Entry dapat diasosiasikan dengan satu user melalui sebuah relationship:
+user = models.ForeignKey(User, on_delete=models.CASCADE)
+- Buka views.py pada subdirektori main dan update dengan potongan kode berikut pada fungsi create_item_entry:
+def create_mood_entry(request):
+    form = MoodEntryForm(request.POST or None)
+
+    if form.is_valid() and request.method == "POST":
+        mood_entry = form.save(commit=False)
+        mood_entry.user = request.user
+        mood_entry.save()
+        return redirect('main:show_main')
+
+    context = {'form': form}
+    return render(request, "create_mood_entry.html", context)
+- Ubah value pada item_entries dan context pada fungsi show_main dengan potongan kode berikut:
+def show_main(request):
+    mood_entries = MoodEntry.objects.filter(user=request.user)
+
+    context = {
+         'name': request.user.username,
+         ...
+    }
+- Lakukan migrasi model untuk menyimpan semua perubahan dengan command berikut: python manage.py makemigrations
+- Lakukan command berikut ini untuk mengaplikasikan migrasi yang dilakukan sebelumnya: python manage.py migrate
+- Impor os dan ganti variabel DEBUG pada settings.py.
+
+d. Menampilkan detail informasi pengguna yang sedang logged in seperti username dan menerapkan cookies seperti last login pada halaman utama aplikasi.
+step by step:
+- Buka views.py pada subdirektori main dan lakukan beberapa impor berikut:
+import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+- Pada fungsi login_user, tambahkan cookie bernama last_login untuk melihat kapan User terakhir kali login dengan mengganti kode pada blok conditional if form.is_valid dengan kode berikut:
+if form.is_valid():
+    user = form.get_user()
+    login(request, user)
+    response = HttpResponseRedirect(reverse("main:show_main"))
+    response.set_cookie('last_login', str(datetime.datetime.now()))
+    return response
+- Pada fungsi show_main, tambahkan 'last_login' sebagai key dan request.COOKIES['last_login'] sebagai value pada context.
+- Update fungsi logout_user sebagai berikut:
+def logout_user(request):
+    logout(request)
+    response = HttpResponseRedirect(reverse('main:login'))
+    response.delete_cookie('last_login')
+    return response
+- Buka main.html dan tambahkan kode berikut setelah tombol logout untuk menampikan data last login dari User.
+<h5>Sesi terakhir login: {{ last_login }}</h5>
+- Buka views.py pada sub direktori main dan lakukan ubah value 'name' pada dictionary context menjadi request.user.username.
+- Run proyek django untuk melihat tampilan informasi User yang sedang login seperti username dan cookies seperti last login.
