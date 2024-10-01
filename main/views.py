@@ -16,12 +16,12 @@ from django.urls import reverse
 @login_required(login_url='/login')
 def show_main(request):
     item_entries = ItemEntry.objects.filter(user=request.user)
-
     context = {
         'nama' : request.user.username,
         'kelas': 'PBP D',
+        'npm' : '2306202694',
         'item_entries': item_entries,
-        'last_login': request.COOKIES['last_login']
+        'last_login': request.COOKIES.get('last_login', 'Belum pernah login')
 
     }
 
@@ -84,3 +84,20 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return response
+
+def edit_item(request, id):
+    item = ItemEntry.objects.get(pk = id)
+
+    form = ItemEntryForm(request.POST or None, instance=item)
+
+    if form.is_valid() and request.method == "POST":
+        # Simpan form dan kembali ke halaman awal
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_item.html", context)
+def delete_item(request, id):
+    item = ItemEntry.objects.get(pk = id)
+    item.delete()
+    return HttpResponseRedirect(reverse('main:show_main'))
