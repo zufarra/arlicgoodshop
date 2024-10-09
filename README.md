@@ -643,3 +643,214 @@ step-by-step:
 {% include 'navbar.html' %}
 ...
 {% endblock content%}
+
+Tugas 6
+ 1. Jelaskan manfaat dari penggunaan JavaScript dalam pengembangan aplikasi web!
+ Jawab: JavaScript merupakan bahasa pemrograman multi-paradigma tingkat tinggi lintas platform yang membuat JavaScript mendukung konsep pemrograman berbasis objek, pemrograman imperatif, dan pemrograman fungsional. Dalam pengembangan aplikasi web, JavaScript memiliki beberapa manfaat, yaitu manipulasi halaman web dapat dilakukan secara dinamis serta memungkinkan halaman web untuk berinteraksi secara dinamis dengan pengguna, digunakan untuk styling css dan html secara dinamis tanpa perlu memuat ulang halaman, digunakan untuk pengolahan Client-Side, digunakan di berbagai perangkat & peramban, dan lain sebagainya.
+
+
+ 2. Jelaskan fungsi dari penggunaan await ketika kita menggunakan fetch()! Apa yang akan terjadi jika kita tidak menggunakan await?
+Jawab: Fungsi penggunaan await ketika menggunakan fetch() adalah untuk menunggu hasil dari operasi asinkronus yang dijalankan oleh fetch(). Fetch API mengembalikan sebuah Promise, yang berarti proses pengambilan data dari server dilakukan secara asinkron, dan hasilnya mungkin tidak langsung tersedia. Dengan menggunakan await, kita dapat menunggu hasil dari fetch() hingga selesai sebelum melanjutkan eksekusi kode, sehingga kita bisa mendapatkan respons yang diinginkan secara sinkron dalam bentuk objek Response.
+
+Jika kita tidak menggunakan await pada pemanggilan fetch(), kode akan terus dieksekusi sebelum hasil dari fetch() tersedia. Ini berarti kita akan mendapatkan Promise sebagai hasil dari fetch(), bukan data yang sudah diproses. Sebagai contoh, jika kita mencoba untuk langsung menggunakan hasil fetch() tanpa await, kita tidak akan bisa mengakses respons atau data yang diambil, karena permintaan HTTP belum selesai.
+
+ 3. Mengapa kita perlu menggunakan decorator csrf_exempt pada view yang akan digunakan untuk AJAX POST?
+Jawab: Kita perlu menggunakan decorator csrf_exempt pada view yang akan digunakan untuk AJAX POST karena decorator ini mencegah Django dari melakukan pengecekan keberadaan CSRF token pada permintaan POST yang dikirimkan ke fungsi tersebut. Dalam kondisi normal, Django secara default memeriksa CSRF token pada setiap permintaan POST untuk melindungi aplikasi dari serangan Cross-Site Request Forgery (CSRF).
+
+Namun, dalam konteks AJAX POST, terutama jika tidak menggunakan CSRF token dalam permintaan, Django akan menolak permintaan tersebut karena tidak ada token yang valid. Oleh karena itu, dengan menambahkan @csrf_exempt pada view, kita dapat menghindari pengecekan ini sehingga request AJAX dapat diproses meskipun tidak ada CSRF token.
+
+
+ 4. Pada tutorial PBP minggu ini, pembersihan data input pengguna dilakukan di belakang (backend) juga. Mengapa hal tersebut tidak dilakukan di frontend saja?
+Jawab: Dengan melakukan pembersihan data di backend (misalnya, menggunakan strip_tags dan DOMPurify seperti yang diterapkan pada tutorial PBP), kita memastikan bahwa data yang masuk ke server sudah aman dan bebas dari potensi serangan seperti Cross-Site Scripting (XSS) atau injeksi lainnya. Backend merupakan tempat yang lebih dapat dipercaya, karena kontrol penuh ada pada pengembang, berbeda dengan frontend yang rentan dimanipulasi oleh pengguna.
+
+ 5. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial)!
+Jawab:
+a. Mengimplementasikan AJAX GET.
+Step-by-step: 
+- Buka berkas views.py dan hapus dua baris berikut: 
+item_entries = ItemEntry.objects.filter(user=request.user)
+'item_entries': item_entries,
+- Buka berkas views.py dan ubah baris pertama pada fungsi show_json dan show_xml dengan kode berikut
+data = ItemEntry.objects.filter(user=request.user)
+- Buka berkas main.html dan hapus bagian conditional item_entries yang menampilkan card_item ketika kosong atau tidak.
+- Di bagian conditional yang telah dihapus tadi, tambahkan kode berikut:
+<div id="item_entry_cards"></div>
+- Buat block script sebelum {% endblock content %} dan buat fungsi baru dengan nama getItemEntries seperti berikut:
+<script>
+  async function getItemEntries(){
+      return fetch("{% url 'main:show_json' %}").then((res) => res.json())
+  }
+</script>
+- Buat fungsi baru pada block script dengan nama refreshItemEntries untuk me-refresh data item secara asinkronus seperti berikut:
+async function refreshItemEntries() {
+    document.getElementById("item_entry_cards").innerHTML = "";
+    document.getElementById("item_entry_cards").className = "";
+    const itemEntries = await getItemEntries();
+    let htmlString = "";
+    let classNameString = "";
+
+    if (itemEntries.length === 0) {
+        classNameString = "flex flex-col items-center justify-center min-h-[24rem] p-6";
+        htmlString = `
+            <div class="flex flex-col items-center justify-center min-h-[24rem] p-6">
+                <img src="{% static 'image/sedih-banget.jpg' %}" alt="Sad face" class="w-32 h-32 mb-4"/>
+                <p class="text-center text-gray-600 mt-4">Belum ada data item pada Arlic Good Shop.</p>
+            </div>
+        `;
+    }
+    else {
+        classNameString = "columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 w-full"
+        itemEntries.forEach((item) => {
+            const name = DOMPurify.sanitize(item.fields.name);
+            const price = DOMPurify.sanitize(item.fields.price);
+            const description = DOMPurify.sanitize(item.fields.description);
+            htmlString += `
+            <div class="max-w-sm w-full min-h-[200px] mx-auto bg-red-400 rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl border-4 border-black">  <div class="p-6">
+    <div class="bg-red text-white font-bold text-2xl mb-4 p-3 rounded-md text-center shadow-md border-4 border-black">
+      ${item.fields.name}
+    </div>
+    <p class="font-bold text-white">PRICE</p>
+    <p class="text-black-600 mb-4">${item.fields.price}</p>
+    <p class="font-bold text-white">DESCRIPTION</p>
+    <p class="text-black-700 mb-4">${item.fields.description}</p>
+    <div class="flex justify-end space-x-2">
+      <a href="/edit-item/${item.pk}"class="bg-yellow-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded border-2 border-black hover:border-blue-400 transition duration-300">
+        Edit
+      </a>
+      <a href="/delete/${item.pk}" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded border-2 border-black hover:border-red-700 transition duration-300">
+        Delete
+      </a>
+    </div>
+  </div>
+</div>
+            `;
+        });
+    }
+b. Mengimplementasikan AJAX POST
+step-by-step:
+- Impor dua hal berikut di views.py:
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+- Buat fungsi baru dengan nama add_item_entry_ajax yang menerima parameter request dengan kode berikut:
+...
+@csrf_exempt
+@require_POST
+def add_item_entry_ajax(request):
+    name = strip_tags(request.POST.get("name")) # strip HTML tags!
+    price = strip_tags(request.POST.get("price")) # strip HTML tags!
+    description = strip_tags(request.POST.get("description")) # strip HTML tags!
+    user = request.user
+    new_item = ItemEntry(
+        name=name, price=price,
+        description=description,
+        user=user
+    )
+    new_item.save()
+    return HttpResponse(b"CREATED", status=201)
+    ...
+CATATAN: menambahkan strip_tags agar aplikasi terlindungi dari cross site scripting dengan membersihkan data baru. Hal tersebut juga diimplementasikan di forms.py untuk masing-masing model.
+
+- Buka urls.py dan impor fungsi add_item_entry_ajax.
+- Tambahkan path url ke dalam urlpatterns untuk mengakses fungsi yang sudah diimpor.
+- Tambahkan kode berikut untuk mengimplementasikan modal (Tailwind) dibawah div dengan id item_entry_cards:
+</div>
+    <div id="crudModal" tabindex="-1" aria-hidden="true" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-x-hidden overflow-y-auto transition-opacity duration-300 ease-out">
+      <div id="crudModalContent" class="relative bg-white rounded-lg shadow-lg w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 mx-4 sm:mx-0 transform scale-95 opacity-0 transition-transform transition-opacity duration-300 ease-out">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 border-b rounded-t">
+          <h3 class="text-xl font-semibold text-gray-900">
+            Add New Item Entry
+          </h3>
+          <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" id="closeModalBtn">
+            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <div class="px-6 py-4 space-y-6 form-style">
+          <form id="itemEntryForm">
+            <div class="mb-4">
+              <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+              <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md p-2 hover:border-indigo-700" placeholder="Enter your item name" required>
+            </div>
+            <div class="mb-4">
+              <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+              <input type="number" id="price" name="price" min="0" rows="3" class="mt-1 block w-full resize-none border border-gray-300 rounded-md p-2 hover:border-indigo-700" placeholder="Enter the price" required>
+            </div>
+            <div class="mb-4">
+              <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+              <textarea id="description" name="description" min="1" max="10" class="mt-1 h-32 block w-full border border-gray-300 rounded-md p-2 hover:border-indigo-700" required></textarea>
+            </div>
+          </form>
+        </div>
+        <!-- Modal footer -->
+        <div class="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2 p-6 border-t border-gray-200 rounded-b justify-center md:justify-end">
+          <button type="button" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg" id="cancelButton">Cancel</button>
+          <button type="submit" id="submitItemEntry" form="itemEntryForm" class="bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg">Save</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+- Agar modal dapat berfungsi, tambahkan fungsi-fungsi javascript berikut:
+<script>
+...
+  const modal = document.getElementById('crudModal');
+  const modalContent = document.getElementById('crudModalContent');
+
+  function showModal() {
+      const modal = document.getElementById('crudModal');
+      const modalContent = document.getElementById('crudModalContent');
+
+      modal.classList.remove('hidden'); 
+      setTimeout(() => {
+        modalContent.classList.remove('opacity-0', 'scale-95');
+        modalContent.classList.add('opacity-100', 'scale-100');
+      }, 50); 
+  }
+
+  function hideModal() {
+      const modal = document.getElementById('crudModal');
+      const modalContent = document.getElementById('crudModalContent');
+
+      modalContent.classList.remove('opacity-100', 'scale-100');
+      modalContent.classList.add('opacity-0', 'scale-95');
+
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 150); 
+  }
+
+  document.getElementById("cancelButton").addEventListener("click", hideModal);
+  document.getElementById("closeModalBtn").addEventListener("click", hideModal);
+...
+</script>
+
+- Tambahkan tombol baru untuk melakukan penambahan data dengan AJAX di bawah tombol Add New Item Entry seperti berikut:
+<a href="{% url 'main:create_item_entry' %}" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
+            Add New Item Entry
+        </a>
+        <button data-modal-target="crudModal" data-modal-toggle="crudModal" class="btn bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105" onclick="showModal();">
+          Add New Item Entry by AJAX
+        </button>
+
+- Tambahkan fungsi baru pada block script dengan nama addItemEntry seperti berikut:
+function addItemEntry() {
+    fetch("{% url 'main:add_item_entry_ajax' %}", {
+      method: "POST",
+      body: new FormData(document.querySelector('#itemEntryForm')),
+    })
+    .then(response => refreshItemEntries())
+
+    document.getElementById("itemEntryForm").reset(); 
+    document.querySelector("[data-modal-toggle='crudModal']").click();
+
+    return false;
+  }
+
+- Tambahkan sebuah event listener pada form yang ada di modal untuk menjalankan fungsi addItemEntry() sebagai berikut:
+document.getElementById("itemEntryForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    addItemEntry();
