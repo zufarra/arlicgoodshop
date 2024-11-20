@@ -3,7 +3,7 @@ from main.views import show_main, create_item_entry, show_xml, show_json, show_x
 from main.views import register, login_user, logout_user
 from main.views import edit_item
 from main.views import delete_item
-from main.views import add_item_entry_ajax
+from main.views import add_item_entry_ajax, create_item_flutter
 app_name = 'main'
 
 urlpatterns = [
@@ -19,5 +19,5 @@ urlpatterns = [
     path('edit-item/<uuid:id>', edit_item, name='edit_item'),
     path('delete/<uuid:id>', delete_item, name='delete_item'),
     path('add-item-entry-ajax', add_item_entry_ajax, name='add_item_entry_ajax'),
-
+    path('create-flutter/', create_item_flutter, name='create_item_flutter'),
 ]   
